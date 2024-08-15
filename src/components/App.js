@@ -1,43 +1,59 @@
-import React, { useState } from "react";
-import "./../styles/App.css";
-import { Link, Route, Routes, Navigate } from "react-router-dom";
-import PrivateRoute from "./PrivateRoute";
-import Home from "./Home";
-import Login from "./Login";
+import React, { useState } from 'react';
+import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-router-dom';
 
 const App = () => {
+  const [authenticated, setAuthenticated] = useState(false);
 
-  const [auth, setAuth] = useState(false)
-
-  const handleLogin = (e)=> {
-    setAuth(!auth)
-  }
+  const handleLoginLogout = () => {
+    setAuthenticated(!authenticated);
+  };
 
   return (
-    <div className="main-container">
-      <p>{!auth ? 'You are not authenticated, Please log in first' : 'Logged in, Now you can enter Playground'}</p>
-      <nav>
+    <Router>
+      <div className="main-container">
         <ul>
+        {authenticated ? 'Logged in, Now you can enter Playground' : 'You are not authenticated, Please login first'}
           <li>
-            <Link to="/">Playground</Link>
+            <Link to="/playground">PlayGround</Link>
           </li>
           <li>
             <Link to="/login">Login</Link>
           </li>
         </ul>
-      </nav>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <PrivateRoute auth={auth}>
-              <Home />
-            </PrivateRoute>
-          }
-        />
-        <Route path="/login" element={<Login auth={auth}  handleLogin={handleLogin} />} />
-      </Routes>
-    </div>
+        <button onClick={handleLoginLogout}>
+          {authenticated ? 'Log Out' : 'Log In'}
+        </button>
+        <Routes>
+          <Route
+            path="/"
+            element={
+              authenticated ? (
+                <Navigate to="/playground" />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
+          <Route
+            path="/login"
+            element={
+              authenticated ? (
+                <Navigate to="/playground" />
+              ) : (
+                <div>
+                  <p>Login</p>
+                </div>
+              )
+            }
+          />
+          <Route
+            path="/playground"
+            element={authenticated ? <div>Hi Welcome to Code PlayGround</div> : <Navigate to="/login" />}
+          />
+          <Route path="*" element={<Navigate to="/" />} />
+        </Routes>
+      </div>
+    </Router>
   );
 };
 
